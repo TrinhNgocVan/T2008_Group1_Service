@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#nullable disable
-
-namespace user_service.Models
+using System.Linq;
+using System.Threading.Tasks;
+using user_service.Models;
+namespace user_service.Dto
 {
-    public partial class Profile
+    public class ProfileDto
     {
-        public Profile()
+        public ProfileDto()
         {
             AppUsers = new HashSet<AppUser>();
             Debits = new HashSet<Debit>();
@@ -21,8 +21,12 @@ namespace user_service.Models
         public string Address { get; set; }
         public string OrgIdentityCode { get; set; }
         public string Salary { get; set; }
+        public string FullSalary { get; set; }
         public string InsuranceSalary { get; set; }
+        public DateTime? PayDate { get; set; }
         public long? LongTermAllowance { get; set; }
+        public string realSalary  { get; set; }
+        public int month { get; set; }
 
         public virtual Organization OrgIdentityCodeNavigation { get; set; }
         public virtual ICollection<AppUser> AppUsers { get; set; }

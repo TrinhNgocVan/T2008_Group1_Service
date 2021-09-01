@@ -10,9 +10,11 @@ using AutoMapper;
 using user_service.Dto;
 using user_service.Services.Implement;
 using user_service.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace user_service.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AppUserController : ControllerBase
@@ -54,6 +56,13 @@ namespace user_service.Controllers
                 userDto.role = _userRepo.getListRolesByUserId(userDto.Id);
             }
             return appUserDto;
+        }
+        // Get : api/AppUser/{username}
+        [HttpGet("getProfile/{username}")]
+        public async Task<ActionResult<user_service.Models.Profile>> GetProfile(string username)
+        {
+
+            return _userRepo.getProfileByUsername(username);
         }
 
         // GET: api/AppUser/5
@@ -104,10 +113,26 @@ namespace user_service.Controllers
         [HttpPost]
         public async Task<ActionResult<AppUser>> PostAppUser(AppUserDto appUserDto)
         {
-            var appUser = _mapper.Map<AppUser>(appUserDto);
-            _context.AppUsers.Add(appUser);
-            await _context.SaveChangesAsync();
+            System.Diagnostics.Debug.WriteLine(appUserDto);
+            var defaultPassword = "admin";
+            appUserDto.AccountExpired = 0 ;
+            appUserDto.AccountLocked = 0;
+            appUserDto.CredentialsExpired = 0;
+            appUserDto.AccountEnabled = 1;
+            appUserDto.Password = defaultPassword;
+            appUserDto.Version = 1;
+            appUserDto.UserLevel = 1;
+            //  appUserDto.CreatedBy 
+            appUserDto.CreatedDate = DateTime.Now.ToLocalTime();
 
+
+            var appUser = _mapper.Map<AppUser>(appUserDto);
+         
+             _context.AppUsers.Add(appUser);
+           
+            await _context.SaveChangesAsync();
+           
+            
             return CreatedAtAction("GetAppUser", new { id = appUser.Id }, appUser);
         }
 

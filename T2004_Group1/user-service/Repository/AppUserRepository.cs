@@ -26,6 +26,11 @@ namespace user_service.Repository
         {
             return  _context.AppUsers.Where(u => u.Username == username).FirstOrDefault();
         }
+        public user_service.Models.Profile  getProfileByUsername(string username)
+        {
+
+            return _context.Profiles.Where(p => p.Email == username ).FirstOrDefault();
+        }
 
         public bool isExisted(long id)
         {

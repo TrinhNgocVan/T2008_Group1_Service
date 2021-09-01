@@ -8,9 +8,7 @@ namespace user_service.Models
 {
     public partial class T2004_Group_1Context : DbContext
     {
-        public T2004_Group_1Context()
-        {
-        }
+       
 
         public T2004_Group_1Context(DbContextOptions<T2004_Group_1Context> options)
             : base(options)
@@ -19,6 +17,7 @@ namespace user_service.Models
 
         public virtual DbSet<AppGroup> AppGroups { get; set; }
         public virtual DbSet<AppUser> AppUsers { get; set; }
+        public virtual DbSet<Debit> Debits { get; set; }
         public virtual DbSet<GroupRole> GroupRoles { get; set; }
         public virtual DbSet<GroupUser> GroupUsers { get; set; }
         public virtual DbSet<Organization> Organizations { get; set; }
@@ -26,14 +25,7 @@ namespace user_service.Models
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=DESKTOP-2A36N94\\SQLEXPRESS;Initial Catalog=T2004_Group_1;Integrated Security=True;MultipleActiveResultSets=true");
-            }
-        }
+     
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -129,6 +121,60 @@ namespace user_service.Models
                     .WithMany(p => p.AppUsers)
                     .HasForeignKey(d => d.ProfileId)
                     .HasConstraintName("FK__app_user__profil__4CA06362");
+            });
+
+            modelBuilder.Entity<Debit>(entity =>
+            {
+                entity.ToTable("Debit");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Amount).HasColumnName("amount");
+
+                entity.Property(e => e.Approved).HasColumnName("approved");
+
+                entity.Property(e => e.ApprovedBy)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("approvedBy");
+
+                entity.Property(e => e.DebtType).HasColumnName("debtType");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EndDay)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("endDay");
+
+                entity.Property(e => e.FileEvidence)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("fileEvidence");
+
+                entity.Property(e => e.IsPayed).HasColumnName("isPayed");
+
+                entity.Property(e => e.Latest).HasColumnName("latest");
+
+                entity.Property(e => e.PayDate)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("payDate");
+
+                entity.Property(e => e.ProfileId).HasColumnName("profileId");
+
+                entity.Property(e => e.StartDay)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("startDay");
+
+                entity.HasOne(d => d.Profile)
+                    .WithMany(p => p.Debits)
+                    .HasForeignKey(d => d.ProfileId)
+                    .HasConstraintName("FK__Debit__profileId__7B5B524B");
             });
 
             modelBuilder.Entity<GroupRole>(entity =>
@@ -240,6 +286,16 @@ namespace user_service.Models
                     .IsUnicode(false)
                     .HasColumnName("gender");
 
+                entity.Property(e => e.InsuranceSalary)
+                    .IsRequired()
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("insuranceSalary");
+
+                entity.Property(e => e.LongTermAllowance)
+                    .HasColumnName("long_term_allowance")
+                    .HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.OrgIdentityCode)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -249,6 +305,12 @@ namespace user_service.Models
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("phone");
+
+                entity.Property(e => e.Salary)
+                    .IsRequired()
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("salary");
 
                 entity.HasOne(d => d.OrgIdentityCodeNavigation)
                     .WithMany(p => p.Profiles)

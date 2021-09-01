@@ -15,6 +15,8 @@ namespace user_service.Mapper
             CreateMap<AppUser, AppUserDto>();
             CreateMap<AppUserDto, AppUser>();
             CreateMap<List<AppUser>, List<AppUserDto>>();
+            CreateMap<user_service.Models.Profile, ProfileDto>();
+            CreateMap<ProfileDto, user_service.Models.Profile>();
 
         }
     }

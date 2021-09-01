@@ -15,7 +15,12 @@ using System.Threading.Tasks;
 using user_service.Mapper;
 using user_service.Repository;
 using user_service.Services.Implement;
-
+using user_service.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace user_service
 {
@@ -32,6 +37,10 @@ namespace user_service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Config connection pool
+            var connectionString = Configuration.GetConnectionString("T2004_Group_1Context");
+            services.AddDbContextPool<T2004_Group_1Context>(options =>options.UseSqlServer(connectionString));
+
             // services.AddHttpContextAccessor();
             services.AddScoped<AppUserRepository, AppUserRepository>();
             services.AddScoped<AppUserRepository, AppUserRepository>();
@@ -54,12 +63,30 @@ namespace user_service
             });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();
-            services.AddTransient<Models.T2004_Group_1Context, Models.T2004_Group_1Context>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                };
+            });
+            // services.AddTransient<Models.T2004_Group_1Context, Models.T2004_Group_1Context>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "user_service", Version = "v1" });
             });
-            
+            // add json preserve
+            services.AddControllersWithViews()
+                    .AddNewtonsoftJson(options =>
+                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                    ) ;
+           
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,8 +104,10 @@ namespace user_service
             app.UseRouting();
 
             app.UseCors(MyAllowSpecificOrigins);
-
+            
+            app.UseAuthentication();
             app.UseAuthorization();
+         
 
             app.UseEndpoints(endpoints =>
             {
